@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+  labels:
+    name: hello
+  annotations:
+    federation.kubernetes.io/service-ingresses: '{"items": [{"cluster": "us", "items": [{"ip": "192.168.99.101", "hostname": "192.168.99.101"}]}, {"cluster": "europe", "items": [{"ip": "192.168.99.102", "hostname": "192.168.99.102"}]}]}'
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    name: hello
+---
+apiVersion: extensions/v1beta1
+kind: ReplicaSet
+metadata:
+  labels:
+    name: hello
+  name: hello
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        name: hello
+    spec:
+      containers:
+      - image: hjacobs/tiny-docker-http-test
+        name: helloworld
+        ports:
+        - containerPort: 8080
+          name: http-server
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello
+  namespace: default
+spec:
+  rules:
+  - host: hello.default.myfed.svc.myzone
+    http:
+      paths:
+      - backend:
+          serviceName: hello
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - hello.default.myfed.svc.myzone
