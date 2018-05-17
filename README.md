@@ -87,6 +87,9 @@ coredns-coredns-5985d8488f-wm67q   1/1       Running   0          1m
 
 ##### 3.1 These clusters will be joined to federation and receive objects from the federation controllers.
 
+**On MacOSX you must use dind (docker in docker) to setup other cluster**
+https://github.com/Mirantis/kubeadm-dind-cluster
+
 ```console
 minikube start -p us
 minikube start -p europe
@@ -123,8 +126,7 @@ kubectl create configmap ingress-uid --from-literal=uid=europe1 -n kube-system -
 Notice that the dns provider config is passed in from the local file coredns-provider.conf.
 
 ```console
-kubefed init myfed --host-cluster-context=minikube --dns-provider="coredns" --dns-zone-name="myzone." --api-server-service-type=NodePort --api-server-advertise-address=$(minikube ip -p minikube) --apiserver-enable-basic-auth=true --apiserver-enable-token-auth=true --apiserver-arg-overrides="
---anonymous-auth=true,--v=4" --dns-provider-config="./coredns-provider.conf"
+kubefed init myfed --host-cluster-context=minikube --dns-provider="coredns" --dns-zone-name="myzone." --api-server-service-type=NodePort --api-server-advertise-address=$(minikube ip -p minikube) --apiserver-enable-basic-auth=true --apiserver-enable-token-auth=true --apiserver-arg-overrides="--anonymous-auth=true,--v=4" --dns-provider-config="./coredns-provider.conf"
 ```
 
 Show the federation api and controller running on minikube
